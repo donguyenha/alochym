@@ -1,0 +1,186 @@
+least cost routing Configuration:
+
+	lcr.conf.xml
+	<configuration name="lcr.conf" description="LCR Configuration">
+	  <settings>
+		<param name="odbc-dsn" value="freeswitch:freeswitch:freeswitch"/>
+	  </settings>
+	  <profiles>
+		<profile name="default">
+		  <param name="id" value="0"/>
+		  <param name="order_by" value="rate,quality,reliability"/>
+		  <param name="quote_in_list" value="yes"/>
+		</profile>
+	  
+		<profile name="qual_rel">
+		  <param name="id" value="1"/>
+		  <param name="order_by" value="quality,reliability"/>
+		  <param name="quote_in_list" value="yes"/>
+		</profile>
+	  
+		<profile name="rel_qual">
+		  <param name="id" value="2"/>
+		  <param name="order_by" value="reliability,quality"/>
+		  <param name="quote_in_list" value="yes"/>
+		</profile>
+	  </profiles>
+	</configuration>
+
+	1.	lcr phu thuoc vao cac file conf sau
+		-	lcr.conf.xml
+		-	db.conf.xml
+		
+	2.	tables cua lcr
+
+		-	carriers
+				Purpose: Defines your carriers
+				Field: carrier_name - name of the carrier
+				Field: enabled - whether the carrier (thus all it's gateways/lcr entries) are enabled
+				
+				CREATE TABLE `carriers` (
+				  `id` int(11) NOT NULL auto_increment,
+				  `carrier_name` varchar(255) default NULL,
+				  `enabled` boolean NOT NULL DEFAULT '1',
+				  PRIMARY KEY  (`id`)   
+				  ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;  
+				 
+				+ example: INSERT INTO carriers (id, carrier_name, enabled) VALUES (1, 'fpt', 1);
+					  mysql> select * from carriers;
+						  +----+--------------+---------+
+						  | id | carrier_name | enabled |
+						  +----+--------------+---------+
+						  |  1 | fpt          |       1 |
+						  +----+--------------+---------+
+
+		-	carrier_gateway
+				Purpose: Defines gateway information for a given carrier
+				Field: carrier_id - maps to carrier
+				Field: prefix - the value to put before the phone number after any translation
+				Field: suffix - the value to put after the phone number after any translation
+				Field: codec - codec to use for absolute_codec_string.  Leave empty/null for default.
+				Field: enabled - whether the gateway (thus all it's lcr entries) are enabled			  
+				
+				CREATE TABLE `carrier_gateway` (  
+					`id` int(11) NOT NULL auto_increment,  
+					`carrier_id` int(11) default NULL,  
+					`prefix` varchar(255) NOT NULL,  
+					`suffix` varchar(255) NOT NULL,  
+					`codec` varchar(255) NOT NULL,  
+					`enabled` boolean NOT NULL DEFAULT '1',  
+					PRIMARY KEY  (`id`),  
+					KEY `carrier_id` (`carrier_id`)  
+				) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;  
+  
+				+ example:  INSERT INTO carrier_gateway (id, carrier_id, prefix, suffix) VALUES (1, 1, 'sofia/gateway/fpt/', '');
+					  mysql> select * from carrier_gateway;
+						  +----+------------+--------------------+--------+-------+---------+
+						  | id | carrier_id | prefix             | suffix | codec | enabled |
+						  +----+------------+--------------------+--------+-------+---------+
+						  |  1 |          1 | sofia/gateway/fpt/ |        |       |       1 |
+						  +----+------------+--------------------+--------+-------+---------+
+
+		-	lcr
+				Purpose: Defines rules for a given digit sequence
+				Field: digits - matching digits
+				Field: rate - rate
+				Field: intrastate_rate - rate for intrastate calls
+				Field: intralata_rate - rate for intralata calls
+				Field: carrier_id - which carrier for this entry
+				Field: lead_strip - how many digits to strip off front of passed in number
+				Field: trail_strip - how many digits to strip of end of passed in number
+				Field: prefix - value to add to front of passed in number
+				Field: suffix - vaulue to add to end of passed in number
+				Field: lcr_profile - profile_id
+				Field: date_start - when this LCR entry becomes valid
+				Field: date_end - when this LCR entry becomes invalid
+				Field: quality - alternate field to order by
+				Field: reliability - alternate field to order by
+				Field: cid - regular expression to modify the callers caller id number - channel variables are also valid when called from the dial plan
+				Field: enabled - true/false - whether this LCR entry is enabled
+  
+				CREATE TABLE `lcr` (  
+					`id` int(11) NOT NULL auto_increment,  
+					`digits` varchar(15) default NULL,  
+					`rate` float(11,5) unsigned NOT NULL,  
+					`intrastate_rate` float(11, 5) unsigned NOT NULL,  
+					`intralata_rate` float(11, 5) unsigned NOT NULL,  
+					`carrier_id` int(11) NOT NULL,  
+					`lead_strip` int(11) NOT NULL,  
+					`trail_strip` int(11) NOT NULL,  
+					`prefix` varchar(16) NOT NULL,  
+					`suffix` varchar(16) NOT NULL,  
+					`lcr_profile` varchar(32) default NULL,  
+					`date_start` datetime NOT NULL DEFAULT '1970-01-01',  
+					`date_end` datetime NOT NULL DEFAULT '2030-12-31',  
+					`quality` float(10,6) NOT NULL,  
+					`reliability` float(10,6) NOT NULL,  
+					`cid` varchar(32) NOT NULL DEFAULT '',  
+					`enabled` boolean NOT NULL DEFAULT '1',   
+					PRIMARY KEY  (`id`),   
+					KEY `carrier_id` (`carrier_id`),   
+					KEY `digits` (`digits`),   
+					KEY `lcr_profile` (`lcr_profile`),   
+					KEY `rate` (`rate`),   
+					KEY `digits_profile_cid_rate` USING BTREE (`digits`,`rate`), 
+					CONSTRAINT `carrier_id` FOREIGN KEY (`carrier_id`) REFERENCES `carriers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE   
+				) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;  
+				
+				+ example: INSERT INTO lcr (id, digits, rate, carrier_id, lead_strip, trail_strip, prefix, suffix, date_start, date_end, quality, reliability) VALUES (1, '0', 0.05, 1, 0, 0, "", "", current_timestamp - interval 1 year, current_timestamp + interval 1 year , 0, 0);
+					mysql> select * from lcr;
+						  +----+--------+---------+-----------------+----------------+------------+------------+-------------+--------+--------+-------------+---------------------+---------------------+----------+-------------+-----+---------+-----+
+						  | id | digits | rate    | intrastate_rate | intralata_rate | carrier_id | lead_strip | trail_strip | prefix | suffix | lcr_profile | date_start          | date_end            | quality  | reliability | cid | enabled | lrn |
+						  +----+--------+---------+-----------------+----------------+------------+------------+-------------+--------+--------+-------------+---------------------+---------------------+----------+-------------+-----+---------+-----+
+						  |  1 | 0      | 0.05000 |            NULL |           NULL |          1 |          0 |           0 |        |        |           0 | 2011-07-09 04:40:21 | 2013-07-09 04:40:21 | 0.000000 |    0.000000 |     |       1 |   0 |
+						  +----+--------+---------+-----------------+----------------+------------+------------+-------------+--------+--------+-------------+---------------------+---------------------+----------+-------------+-----+---------+-----+
+
+		-	npa_nxx_company_ocn
+				CREATE TABLE npa_nxx_company_ocn (   
+				npa smallint NOT NULL,   
+				nxx smallint NOT NULL,   
+				company_type text,   
+				ocn text,   
+				company_name text,   
+				lata integer,   
+				ratecenter text,   
+				state text   
+				);
+			
+  
+  
+  cau hinh de FS dung lcr tren dialplan:
+    +	cac file tao phai bat dau bang so 0: 0[1-9]_[a-z].xml
+	+ 	tao file /etc/freeswitch/dialplan/default/01_thm.xml:
+		<include>
+		  <extension name="thm_local">
+			<!--<condition field="${toll_allow}" expression="local"/> -->
+			<condition field="destination_number" expression="^08(\d{8})$">
+			  <action application="lcr" data="$0"/>
+			  <action application="bridge" data="${lcr_auto_route}"/>
+			</condition>
+		  </extension>
+
+		  <extension name="thm_mobile_09">
+			<!--<condition field="${toll_allow}" expression="mobile"/>-->		
+			<condition field="destination_number" expression="^09(\d{8})|01(\d{9})$">
+			  <action application="lcr" data="$0"/>
+			  <action application="bridge" data="${lcr_auto_route}"/>
+			</condition>
+		  </extension>
+
+		  <extension name="thm_longdistance">
+			<!--<condition field="${toll_allow}" expression="domestic"/>-->
+			<condition field="destination_number" expression="^0[23567](\d+)$">
+			  <action application="lcr" data="$0"/>
+			  <action application="bridge" data="${lcr_auto_route}"/>
+			</condition>
+		  </extension>
+
+		  <extension name="thm_international">
+			<!--<condition field="${toll_allow}" expression="international"/>-->
+			<condition field="destination_number" expression="^011(\d+)$">
+			  <action application="lcr" data="$0"/>
+			  <action application="bridge" data="${lcr_auto_route}"/>
+			</condition>
+		  </extension>
+
+		</include>

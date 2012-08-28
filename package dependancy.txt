@@ -1,0 +1,10 @@
+The packages dependancy for FreeSwitch:
+	1.	monit
+	2.	unbound
+	3.	httpd
+	4.	ngrep
+	5.	mysql-server
+	6.	MySQL-python
+	7.	php
+	8.	php-mysql
+	9.	mysql-connector-odbc

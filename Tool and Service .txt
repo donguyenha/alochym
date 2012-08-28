@@ -1,0 +1,8 @@
+	1.	Tools to troubleshooting:
+		-	ngrep tool
+		-	tcpdump tool
+	2.	Service to work with FreeSwitch:
+		-	monit service: use to monitor other service running or not
+		-	unbound service: use as the local DNS server for FreeSwitch
+		-	http service: use as the web server for FreeSwitch
+		-	mysql service: use as the Database backend for FreeSwitch

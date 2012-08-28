@@ -1,0 +1,47 @@
+Cai dat unbound dns	
+	1.	unbound.conf:	
+<<<<<<< HEAD
+	server:
+        verbosity: 1
+=======
+server:
+		verbosity: 1
+>>>>>>> update unbound DNS
+        statistics-interval: 0
+        statistics-cumulative: no
+        extended-statistics: yes
+        num-threads: 2
+<<<<<<< HEAD
+         interface: 0.0.0.0
+        # port to answer queries from
+        port: 53
+        do-ip4: yes        
+        do-ip6: no
+        do-udp: yes
+        do-tcp: no
+
+        local-zone: "sia-HCM1CA146.fpt.net" static
+        local-data: "sia-HCM1CA146.fpt.net IN A 118.69.239.250"
+        local-data-ptr: "118.69.239.250 sia-HCM1CA146.fpt.net"
+
+
+# Remote control config section.
+forward-zone:
+        name: "."
+        forward-addr: 8.8.8.8
+=======
+		interface: 0.0.0.0
+ 		port: 53
+ 		do-ip4: yes
+        do-ip6: no
+		do-udp: yes
+ 		do-tcp: no
+		
+        local-zone: "sia-HCM1CA146.fpt.net" static
+        local-data: "sia-HCM1CA146.fpt.net IN A 118.69.239.242"
+        local-data-ptr: "118.69.239.242 sia-HCM1CA146.fpt.net"
+		
+		forward-zone:
+			name: "."
+			forward-addr: 8.8.8.8
+>>>>>>> update unbound DNS

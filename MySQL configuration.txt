@@ -1,0 +1,9 @@
+MySQL configuration 
+	1.	create user in MySQL
+		-	create user 'freeswitch'@'localhost' identified by 'freeswitch';
+	2.	create Database in MySQL
+		-	create database freeswitch
+	3.	set privilege for user freeswitch
+		-	grant all privileges on freeswitch.* to 'freeswitch'@'localhost'
+	4.	create tables for FreeSwitch work
+		-	mysql -ufreeswitch -pfreeswitch -hlocalhost freeswitch < freeswitch.sql

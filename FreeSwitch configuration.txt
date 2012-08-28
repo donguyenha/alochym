@@ -1,0 +1,44 @@
+FreeSwitch configuration use MySQL in Core
+	1.	config ODBC 
+		1.1	edit file /etc/odbcinst.ini:
+		[MySQL]
+		Description     = ODBC for MySQL		
+		Driver          = /usr/lib/libmyodbc3_r.so
+		Setup           = /usr/lib/libodbcmyS.so
+		Driver64        = /usr/lib64/libmyodbc3_r.so
+		Setup64         = /usr/lib64/libodbcmyS.so
+		FileUsage       = 1
+		
+		1.2	edit file /etc/odbc.ini:
+		[freeswitch]
+		Driver          = MySQL
+		SERVER          = 127.0.0.1
+		PORT            = 3306
+		DATABASE        = freeswitch
+		OPTION          = 67108864
+		Socket          = /var/lib/mysql/mysql.sock
+		USER            = freeswitch
+		PASSWORD        = freeswitch
+
+	2.	config FreeSwitch xml file
+		2.1	edit file /opt/freeswitch/conf/sip_profiles/internal.xml
+			<!--<param name="odbc-dsn" value="dsn:user:pass"/>--> 
+			change to     
+			<param name="odbc-dsn" value="freeswitch:test2:pass"/>
+		2.2	edit file /opt/freeswitch/conf/autoload_configs/switch.conf.xml 
+			<!-- <param name="core-db-dsn" value="dsn:username:password" /> -->
+			change to
+			<param name="core-db-dsn" value="freeswitch:freeswitch:freeswitch" />
+			
+	3.	enable cac module lien quan:
+			-	mod_easyroute
+			-	mod_lcr
+			-	mod_xml_curl
+			-	mod_xml_rpc
+			-	mod_flite
+			-	edit file vi /etc/freeswitch/autoload_configs/modules.conf.xml. Uncomment/them cac dong
+				+	mod_xml_curl
+				+	mod_easyroute
+				+	mod_lcr
+				+	mod_xml_rpc
+				+	mod_flite
