@@ -80,7 +80,8 @@ Buoc 2.
 	-	tao du lieu tren table numbers. 
 	-	Trong do gateway_id tren table numbers se duoc tham chieu toi gateway_id cua table gateways
 	+ techprofile: sofia/internal 
-		- dung de goi vao cac extension dang ky vao FS(sofia/internal/1000@172.30.41.117)
+		- dung de goi vao cac extension dang ky vao FS(sofia/internal/1000@172.30.41.117) - de xem lai
+		- dung de goi vao cac extension dang ky vao FS(user/1000@172.30.41.117)
 	+ techprofile: sofia/external 
 		- dung de chuyen cuoc goi ra cac trunking khac tren FS(sofia/external/01684099415@sia-HCM1CA146.fpt.net)
 		
