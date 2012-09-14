@@ -1,0 +1,132 @@
+least cost routing Configuration:
+
+	2.	tables cua lcr
+
+		-	carriers
+				Purpose: Defines your carriers
+				Field: carrier_name - name of the carrier
+				Field: enabled - whether the carrier (thus all it's gateways/lcr entries) are enabled
+				
+				CREATE TABLE `carriers` (
+				  `id` int(11) NOT NULL auto_increment,
+				  `carrier_name` varchar(255) default NULL,
+				  `enabled` boolean NOT NULL DEFAULT '1',
+				  PRIMARY KEY  (`id`)   
+				  ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;  
+				 
+				+ example: INSERT INTO carriers (id, carrier_name, enabled) VALUES (1, 'fpt', 1);
+					  mysql> select * from carriers;
+						  +----+--------------+---------+
+						  | id | carrier_name | enabled |
+						  +----+--------------+---------+
+						  |  1 | fpt          |       1 |
+						  +----+--------------+---------+
+
+		-	carrier_gateway
+				Purpose: Defines gateway information for a given carrier
+				Field: carrier_id - maps to carrier
+				Field: prefix - the value to put before the phone number after any translation
+				Field: suffix - the value to put after the phone number after any translation
+				Field: codec - codec to use for absolute_codec_string.  Leave empty/null for default.
+				Field: enabled - whether the gateway (thus all it's lcr entries) are enabled			  
+				
+				CREATE TABLE `carrier_gateway` (  
+					`id` int(11) NOT NULL auto_increment,  
+					`carrier_id` int(11) default NULL,  
+					`prefix` varchar(255) NOT NULL,  
+					`suffix` varchar(255) NOT NULL,  
+					`codec` varchar(255) NOT NULL,  
+					`enabled` boolean NOT NULL DEFAULT '1',  
+					PRIMARY KEY  (`id`),  
+					KEY `carrier_id` (`carrier_id`)  
+				) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;  
+  
+				+ example:  INSERT INTO carrier_gateway (id, carrier_id, prefix, suffix) VALUES (1, 1, 'sofia/gateway/fpt/', '');
+					  mysql> select * from carrier_gateway;
+						  +----+------------+--------------------+--------+-------+---------+
+						  | id | carrier_id | prefix             | suffix | codec | enabled |
+						  +----+------------+--------------------+--------+-------+---------+
+						  |  1 |          1 | sofia/gateway/fpt/ |   0    |       |       1 |
+						  +----+------------+--------------------+--------+-------+---------+
+
+		-	lcr
+				Purpose: Defines rules for a given digit sequence
+				Field: digits - matching digits
+				Field: rate - rate
+				Field: intrastate_rate - rate for intrastate calls
+				Field: intralata_rate - rate for intralata calls
+				Field: carrier_id - which carrier for this entry
+				Field: lead_strip - how many digits to strip off front of passed in number
+				Field: trail_strip - how many digits to strip of end of passed in number
+				Field: prefix - value to add to front of passed in number
+				Field: suffix - vaulue to add to end of passed in number
+				Field: lcr_profile - profile_id
+				Field: date_start - when this LCR entry becomes valid
+				Field: date_end - when this LCR entry becomes invalid
+				Field: quality - alternate field to order by
+				Field: reliability - alternate field to order by
+				Field: cid - regular expression to modify the callers caller id number - channel variables are also valid when called from the dial plan
+				Field: enabled - true/false - whether this LCR entry is enabled
+  
+				CREATE TABLE `lcr` (  
+					`id` int(11) NOT NULL auto_increment,  
+					`digits` varchar(15) default NULL,  
+					`rate` float(11,5) unsigned NOT NULL,  
+					`intrastate_rate` float(11, 5) unsigned NOT NULL,  
+					`intralata_rate` float(11, 5) unsigned NOT NULL,  
+					`carrier_id` int(11) NOT NULL,  
+					`lead_strip` int(11) NOT NULL,  
+					`trail_strip` int(11) NOT NULL,  
+					`prefix` varchar(16) NOT NULL,  
+					`suffix` varchar(16) NOT NULL,  
+					`lcr_profile` varchar(32) default NULL,  
+					`date_start` datetime NOT NULL DEFAULT '1970-01-01',  
+					`date_end` datetime NOT NULL DEFAULT '2030-12-31',  
+					`quality` float(10,6) NOT NULL,  
+					`reliability` float(10,6) NOT NULL,  
+					`cid` varchar(32) NOT NULL DEFAULT '',  
+					`enabled` boolean NOT NULL DEFAULT '1',   
+					PRIMARY KEY  (`id`),   
+					KEY `carrier_id` (`carrier_id`),   
+					KEY `digits` (`digits`),   
+					KEY `lcr_profile` (`lcr_profile`),   
+					KEY `rate` (`rate`),   
+					KEY `digits_profile_cid_rate` USING BTREE (`digits`,`rate`), 
+					CONSTRAINT `carrier_id` FOREIGN KEY (`carrier_id`) REFERENCES `carriers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE   
+				) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;  
+				
+				+ example: INSERT INTO lcr (id, digits, rate, carrier_id, lead_strip, trail_strip, prefix, suffix, date_start, date_end, quality, reliability) VALUES (1, '0', 0.05, 1, 0, 0, "", "", current_timestamp - interval 1 year, current_timestamp + interval 1 year , 0, 0);
+					mysql> select * from lcr;
+						  +----+--------+---------+-----------------+----------------+------------+------------+-------------+--------+--------+-------------+---------------------+---------------------+----------+-------------+-----+---------+-----+
+						  | id | digits | rate    | intrastate_rate | intralata_rate | carrier_id | lead_strip | trail_strip | prefix | suffix | lcr_profile | date_start          | date_end            | quality  | reliability | cid | enabled | lrn |
+						  +----+--------+---------+-----------------+----------------+------------+------------+-------------+--------+--------+-------------+---------------------+---------------------+----------+-------------+-----+---------+-----+
+						  |  1 | 0      | 0.05000 |            NULL |           NULL |          1 |          0 |           0 |        |        |           0 | 2011-07-09 04:40:21 | 2013-07-09 04:40:21 | 0.000000 |    0.000000 |     |       1 |   0 |
+						  +----+--------+---------+-----------------+----------------+------------+------------+-------------+--------+--------+-------------+---------------------+---------------------+----------+-------------+-----+---------+-----+
+		
+		
+		
+	+	Huong dan su dung LCR
+		*	carriers: can hien thi tren web id, carrier_name, enabled, yeu cau user nhap vao
+		*	carrier_gateway: can hien thi tren web carrier_id, prefix, enabled
+			+	carrier_id: se tham chieu toi id cua carrier table o tren
+			+	prefix: 
+				-	gia tri default la: sofia/gateway/ + ten trunkgroup + /
+				-	nen doi ten lai tren web cho de hieu: dial-string
+				-	chi cho phep chon ten trunk hien co tren Freeswitch - yeu cau phai co trunk truoc khi tao LCR
+			+	suffix: khong can nhap vao
+			+	codec: khong can nhap vao
+			+	enabled: enabled hay ko
+		*	lcr: can hien thi tren web - digit, rate, carrier_id, lead_strip, trail_strip, prefix, suffix, enabled
+			+	id: auto increment
+			+	rate: gia tien cua cuoc goi - cai nay de coi lai coi no lay rate cao hay thap de routing
+			+	carrier_id: cho phep chon dua tren carrier_gateway table
+			+	lead_strip: xoa so dau tien cua chuoi so.
+				+	vi du: bam 0902739370 -> 902739370
+			+	trail_strip: dang xem lai
+			+	prefix: them so vao vi tri dau tien cua chuoi so
+				+	vi du: bam 0902739370, prefix = alochym -> alochym0902739370
+			+	suffix: them vao vi tri cuoi cung cua chuoi so
+				+	vi du: bam 0902739370, suffix = alochym -> 0902739370alochym
+			eanbled: enabled hay ko
+			+	intrastate_rate, intralata_rate, lcr_profile, date_start, date_end, quality, reliability, cid, lrn: khong can nhap co gia tri default
+			
