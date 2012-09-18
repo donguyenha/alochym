@@ -1,0 +1,219 @@
+call_center configuration
+
+<configuration name="callcenter.conf" description="CallCenter">
+  <settings>
+    <param name="odbc-dsn" value="freeswitch:freeswitch:freeswitch"/>
+  </settings>
+
+  <queues>
+
+    <queue name="support@default">
+      <param name="strategy" value="round-robin"/>
+      <!--<param name="strategy" value="longest-idle-agent"/>-->
+      <param name="moh-sound" value="$$\{hold_music\}"/>
+      <!--<param name="moh-sound" value="/usr/share/freeswitch/sounds/en/us/callie/ivr/8000/"/>-->
+      <param name="time-base-score" value="system"/>
+      <param name="max-wait-time" value="0"/>
+      <param name="max-wait-time-with-no-agent" value="0"/>
+      <param name="max-wait-time-with-no-agent-time-reached" value="5"/>
+      <param name="tier-rules-apply" value="false"/>
+      <param name="tier-rule-wait-second" value="300"/>
+      <param name="tier-rule-wait-multiply-level" value="true"/>
+      <param name="tier-rule-no-agent-no-wait" value="false"/>
+      <param name="discard-abandoned-after" value="60"/>
+      <param name="abandoned-resume-allowed" value="false"/>
+    </queue>
+
+  </queues>
+
+</configuration>
+
+
+	1.	cac cau lenh de add/del/list agents
+		+ 	add/set agents: cau lenh nay co the dung qua http://ip_Freeswitch:8080/webapi/
+			-	callcenter_config agent add [name] [type]
+				*	name: la sip subscriber
+				*	type: callback/uuid-standby. o day ta dung type=callback
+			_	callcenter_config set status [agent_name] [status]
+				*	agent_name: chinh la name cua cau lenh callcenter_config agent add
+				*	status: 
+					+	Logged Out - khong nhan duoc cuoc goi. su dung khi agent het h lam viec
+					+	Available - co the nhan cuoc goi. su dung khi agent lam viec
+			-	callcenter_config set contact [agent_name] [contact]
+				*	agent_name: chinh la name cua cau lenh callcenter_config agent add
+				*	contact: luon la [call_timeout=30]user/[agent_name]
+			-	max-no-answer="5": that agent fails to answer that many calls, then the agent's Status will changed to 'On Break'
+			-	wrap-up-time="10": Allow an agent to have a delay when finishing a call before receiving another one(in second)
+			-	reject-delay-time="10": A delay can be added before calling an agent who has just rejected a call
+			-	busy-delay-time="60": If the agent is on do not disturb, we wait this defined time before trying him again
+			
+			-	cau lenh tong hop : 
+				1.	callcenter_config agent add 12345 callback
+				2.	callcenter_config agent set contact 12345 [call_timeout=10]user/12345
+				3.	callcenter_config agent set	status 12345 Available
+				4.	callcenter_config agent set max-no-answer 5
+				5.	callcenter_config agent set wrap-up-time 10
+				6.	callcenter_config agent set reject-delay-time 10
+				7.	callcenter_config agent set busy-delay-time 60
+		+	del agent: dung de xoa agent:
+			-	callcenter_config agent del [name] - callcenter_config agent del 12345
+		+	list agent: callcenter_config agent list
+name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_delay_time|busy_delay_time|no_answer_delay_time|last_bridge_start|last_bridge_end|last_offered_call|last_status_change|no_answer_count|calls_answered|talk_time|ready_time 
+1000|single_box||callback|[call_timeout=100]user/1000|Available|Waiting|3|10|10|60|0|1347865331|1347865355|1347873068|1347864252|0|5|149|1347865410 
+12345|single_box||callback|[call_timeout=10]user/12345|Available|Waiting|0|0|0|0|5|0|0|0|1347932185|0|0|0|0
+
+
+	+	login mysql:
+		- insert into agents(name, system, type, contact, status, state, max_no_answer, wrap_up_time, reject_delay_time, busy_delay_time) 
+			VALUES			('1000', 'single_box', 'callback', '[call_timeout=15]user/1000', 'Available', 'Waiting', 5, 10,10, 60);
+			
+		-	cac gia tri sau khong doi: - ko cho user nhap vao va khong cho thay luon
+			+	system = single_box
+			+	type = callback
+			+	status = Available
+			+	state = Waiting
+			+	max-no-answer = 5
+			+	wrap_up_time = 10
+			+	reject_delay_time = 10
+			+	busy_delay_time = 60
+		-	cac gia tri thay doi:
+			+	name = sip subscrber
+			+	contact = '[call_timeout=15]user' + '/' + 'name' - khong cho user nhap vao va khong cho thay luon
+				*	'[call_timeout=15]user' + '/' : se khong doi
+				*	'name' = se thay doi theo sip subscriber
+
+
+			
+	2.	cac cau lenh dung de list/del/add tier
+		+	add tiers: cau lenh nay co the qua http://ip_Freeswitch:8080/webapi/
+			-	callcenter_config tier add [queque_name] [agent_name] [level] [position]
+				* vi du: callcenter_config tier support@default 12345 1 2
+		+	del tiers: cau lenh nay dung de xoa agent ra
+			-	callcenter_config tier del [queque_name] [agent_name]
+				* vi du: callcenter_config tier support@default 12345
+		+ list tier: dung de xem co bao nhieu agent trong 1 tier
+			queue|agent|state|level|position 
+			support@default|1000|Ready|1|1 
+			support@default|12345|Ready|1|2 
+
+
+
+	+	login mysql
+		-	insert into tiers(queue, agent, state, level, position) VAALUES('support@default', '1000', 'ready', 1, 1);
+		
+		-	cac gia tri khong doi: - ko cho user nhap vao, va khogn cho thay luon
+			+	state = ready
+			+	level = 1
+		-	cac gia tri thay doi
+			+	queue = support@default - chi dc chon tu file callcenter.conf.xml
+			+	agent = agent_name(1000) - chi duoc chon tu agents tables
+			
+	3.	xem coi trong queue hien tai co bao nhieu nguoi doi de ho tro
+		-	select * from members where state='Trying';
+		
+					select * from members\G;
+				*************************** 1. row ***************************
+						  queue: support@default
+						 system: single_box
+						   uuid: 35211ea9-96ec-47c6-b995-22e41d4fb587
+				   session_uuid: 71ec9022-6672-47e3-920b-47ac7bf95ae9
+					 cid_number: 1001
+					   cid_name: hadn
+				   system_epoch: 1347940148
+				   joined_epoch: 1347940148
+				 rejoined_epoch: 0
+				   bridge_epoch: 0
+				abandoned_epoch: 0
+					 base_score: 0
+					skill_score: 0
+				  serving_agent: 1000
+				 serving_system: single_box
+						  state: Trying
+		  
+		  
+		  
+	4.	xem coi trong queue hien tai co bao nhieu nguoi dang duoc ho tro va agent nao dang ho tro
+		-	select * from members where state='Answered';
+			*	so goi den = cid_number: 1001
+			*	agent dang ho tro = serving_agent: 1000
+		
+					select * from members\G;
+				*************************** 1. row ***************************
+						  queue: support@default
+						 system: single_box
+						   uuid: f277ef13-f43a-4df4-9449-6be2bf94b3df
+				   session_uuid: c242899c-6ea2-4b3f-bc50-c9b1ef17a292
+					 cid_number: 1001
+					   cid_name: hadn
+				   system_epoch: 1347941597
+				   joined_epoch: 1347941597
+				 rejoined_epoch: 0
+				   bridge_epoch: 1347941604
+				abandoned_epoch: 0
+					 base_score: 0
+					skill_score: 0
+				  serving_agent: 1000
+				 serving_system: single_box
+						  state: Answered		
+		  
+		  
+	
+	
+	5.	add queue:	
+		-	cho user nhap ten queue 
+		-	cho user chon rule de ringing user
+			strategy : 
+				ring-all						Rings all agents simultaneously.
+				longest-idle-agent				Rings the agent who has been idle the longest.
+				round-robin						Rings the agent in position but remember last tried agent.
+				top-down						Rings the agent in order position starting from 1 for every member.
+				agent-with-least-talk-time		Rings the agent with least talk time.
+				agent-with-fewest-calls			Rings the agent with fewest calls.								
+	
+		-	sau khi user nhap xong thi load file callcenter.conf.xml, luu lai theo cau truc sau
+		
+				<configuration name="callcenter.conf" description="CallCenter">
+				  <settings>
+					<param name="odbc-dsn" value="freeswitch:freeswitch:freeswitch"/>
+				  </settings>
+
+						
+				  <queues>
+
+					<queue name="support@default">      
+					  <param name="strategy" value="longest-idle-agent"/>
+					  <param name="moh-sound" value="$$\{hold_music\}"/>      
+					  <param name="time-base-score" value="system"/>
+					  <param name="max-wait-time" value="0"/>
+					  <param name="max-wait-time-with-no-agent" value="0"/>
+					  <param name="max-wait-time-with-no-agent-time-reached" value="5"/>
+					  <param name="tier-rules-apply" value="false"/>
+					  <param name="tier-rule-wait-second" value="300"/>
+					  <param name="tier-rule-wait-multiply-level" value="true"/>
+					  <param name="tier-rule-no-agent-no-wait" value="false"/>
+					  <param name="discard-abandoned-after" value="60"/>
+					  <param name="abandoned-resume-allowed" value="false"/>
+					</queue>
+				.....
+				.....
+				.....
+					<queue name="alochym">
+					  <param name="strategy" value="round-robin"/>      
+					  <param name="moh-sound" value="$$\{hold_music\}"/>      
+					  <param name="time-base-score" value="system"/>
+					  <param name="max-wait-time" value="0"/>
+					  <param name="max-wait-time-with-no-agent" value="0"/>
+					  <param name="max-wait-time-with-no-agent-time-reached" value="5"/>
+					  <param name="tier-rules-apply" value="false"/>
+					  <param name="tier-rule-wait-second" value="300"/>
+					  <param name="tier-rule-wait-multiply-level" value="true"/>
+					  <param name="tier-rule-no-agent-no-wait" value="false"/>
+					  <param name="discard-abandoned-after" value="60"/>
+					  <param name="abandoned-resume-allowed" value="false"/>
+					</queue>
+					
+				  </queues>
+
+				</configuration>
+				
+		-	sau do reloadxml : http://IP_Freeswitch:8080/webapi/reloadxml
