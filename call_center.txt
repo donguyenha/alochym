@@ -63,7 +63,7 @@ name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_del
 12345|single_box||callback|[call_timeout=10]user/12345|Available|Waiting|0|0|0|0|5|0|0|0|1347932185|0|0|0|0
 
 
-	+	login mysql:
+	+	login sqlite: sqlite /dev/shm/callcenter.db:
 		- insert into agents(name, system, type, contact, status, state, max_no_answer, wrap_up_time, reject_delay_time, busy_delay_time) 
 			VALUES			('1000', 'single_box', 'callback', '[call_timeout=15]user/1000', 'Available', 'Waiting', 5, 10,10, 60);
 			
@@ -98,7 +98,7 @@ name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_del
 
 
 
-	+	login mysql
+	+	login sqlite: sqlite /dev/shm/callcenter.db
 		-	insert into tiers(queue, agent, state, level, position) VAALUES('support@default', '1000', 'ready', 1, 1);
 		
 		-	cac gia tri khong doi: - ko cho user nhap vao, va khogn cho thay luon
@@ -111,7 +111,7 @@ name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_del
 	3.	xem coi trong queue hien tai co bao nhieu nguoi doi de ho tro
 		-	select * from members where state='Trying';
 		
-					select * from members\G;
+					select * from members;
 				*************************** 1. row ***************************
 						  queue: support@default
 						 system: single_box
@@ -137,7 +137,7 @@ name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_del
 			*	so goi den = cid_number: 1001
 			*	agent dang ho tro = serving_agent: 1000
 		
-					select * from members\G;
+					select * from members;
 				*************************** 1. row ***************************
 						  queue: support@default
 						 system: single_box
@@ -155,8 +155,75 @@ name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_del
 				  serving_agent: 1000
 				 serving_system: single_box
 						  state: Answered		
+
+SQLite example:
+sqlite> .dump
+BEGIN TRANSACTION;
+CREATE TABLE members (
+   queue             VARCHAR(255),
+   system            VARCHAR(255),
+   uuid      VARCHAR(255) NOT NULL DEFAULT '',
+   session_uuid     VARCHAR(255) NOT NULL DEFAULT '',
+   cid_number        VARCHAR(255),
+   cid_name          VARCHAR(255),
+   system_epoch     INTEGER NOT NULL DEFAULT 0,
+   joined_epoch     INTEGER NOT NULL DEFAULT 0,
+   rejoined_epoch   INTEGER NOT NULL DEFAULT 0,
+   bridge_epoch     INTEGER NOT NULL DEFAULT 0,
+   abandoned_epoch  INTEGER NOT NULL DEFAULT 0,
+   base_score       INTEGER NOT NULL DEFAULT 0,
+   skill_score      INTEGER NOT NULL DEFAULT 0,
+   serving_agent    VARCHAR(255),
+   serving_system   VARCHAR(255),
+   state             VARCHAR(255)
+);
+CREATE TABLE agents (
+   name      VARCHAR(255),
+   system    VARCHAR(255),
+   uuid      VARCHAR(255),
+   type      VARCHAR(255),
+   contact   VARCHAR(255),
+   status    VARCHAR(255),
+   state   VARCHAR(255),
+   max_no_answer INTEGER NOT NULL DEFAULT 0,
+   wrap_up_time INTEGER NOT NULL DEFAULT 0,
+   reject_delay_time INTEGER NOT NULL DEFAULT 0,
+   busy_delay_time INTEGER NOT NULL DEFAULT 0,
+   no_answer_delay_time INTEGER NOT NULL DEFAULT 0,
+   last_bridge_start INTEGER NOT NULL DEFAULT 0,
+   last_bridge_end INTEGER NOT NULL DEFAULT 0,
+   last_offered_call INTEGER NOT NULL DEFAULT 0,
+   last_status_change INTEGER NOT NULL DEFAULT 0,
+   no_answer_count INTEGER NOT NULL DEFAULT 0,
+   calls_answered  INTEGER NOT NULL DEFAULT 0,
+   talk_time  INTEGER NOT NULL DEFAULT 0,
+   ready_time INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE tiers (
+   queue    VARCHAR(255),
+   agent    VARCHAR(255),
+   state    VARCHAR(255),
+   level    INTEGER NOT NULL DEFAULT 1,
+   position INTEGER NOT NULL DEFAULT 1
+);
+
+
+INSERT INTO "agents" VALUES('1000', 'single_box', NULL, 'callback', '[call_timeout=100]user/1000', 'Available', 'Waiting', 3, 10, 10, 60, 0, 0, 0, 0, 1347953793, 0, 0, 0, 0);
+INSERT INTO "agents" VALUES('12345', 'single_box', NULL, 'callback', '[call_timeout=100]user/12345', 'Available', 'Waiting', 3, 10, 10, 60, 0, 0, 0, 0, 1347953793, 0, 0, 0, 0);
+
+INSERT INTO "tiers" VALUES('support@default', '1000', 'Ready', 1, 1);
+INSERT INTO "tiers" VALUES('support@default', '12345', 'Ready', 1, 2);						  
 		  
-		  
+COMMIT;
+
+
+sqlite> select * from tiers;
+support@default|1000|Ready|1|1
+support@default|12345|Ready|1|2
+sqlite> select * from agents;
+1000|single_box||callback|[call_timeout=100]user/1000|Available|Waiting|3|10|10|60|0|0|0|0|1347953793|0|0|0|0
+12345|single_box||callback|[call_timeout=100]user/12345|Available|Waiting|3|10|10|60|0|0|0|0|1347953793|0|0|0|0
 	
 	
 	5.	add queue:	
