@@ -216,4 +216,5 @@ name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_del
 
 				</configuration>
 				
-		-	sau do reloadxml : http://IP_Freeswitch:8080/webapi/reloadxml
+		-	sau do load queue : http://IP_Freeswitch:8080/webapi/callcenter_config?%20queue%20load%20alochym
+		-	muon remove queue : http://IP_Freeswitch:8080/webapi/callcenter_config?%20queue%20unload%20alochym
