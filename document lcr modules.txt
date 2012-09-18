@@ -116,17 +116,14 @@ least cost routing Configuration:
 			+	suffix: khong can nhap vao
 			+	codec: khong can nhap vao
 			+	enabled: enabled hay ko
-		*	lcr: can hien thi tren web - digit, rate, carrier_id, lead_strip, trail_strip, prefix, suffix, enabled
+		*	lcr: can hien thi tren web - digit, rate, carrier_id, lead_strip, prefix, enabled
 			+	id: auto increment
 			+	rate: gia tien cua cuoc goi - cai nay de coi lai coi no lay rate cao hay thap de routing
 			+	carrier_id: cho phep chon dua tren carrier_gateway table
 			+	lead_strip: xoa so dau tien cua chuoi so.
-				+	vi du: bam 0902739370 -> 902739370
-			+	trail_strip: dang xem lai
+				+	vi du: bam 0902739370 -> 902739370			
 			+	prefix: them so vao vi tri dau tien cua chuoi so
 				+	vi du: bam 0902739370, prefix = alochym -> alochym0902739370
-			+	suffix: them vao vi tri cuoi cung cua chuoi so
-				+	vi du: bam 0902739370, suffix = alochym -> 0902739370alochym
-			eanbled: enabled hay ko
+			+	enabled: enabled hay ko
 			+	intrastate_rate, intralata_rate, lcr_profile, date_start, date_end, quality, reliability, cid, lrn: khong can nhap co gia tri default
 			
