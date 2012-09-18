@@ -125,5 +125,5 @@ least cost routing Configuration:
 			+	prefix: them so vao vi tri dau tien cua chuoi so
 				+	vi du: bam 0902739370, prefix = alochym -> alochym0902739370
 			+	enabled: enabled hay ko
-			+	intrastate_rate, intralata_rate, lcr_profile, date_start, date_end, quality, reliability, cid, lrn: khong can nhap co gia tri default
+			+	intrastate_rate, intralata_rate, suffix, trail_strip, lcr_profile, date_start, date_end, quality, reliability, cid, lrn: khong can nhap co gia tri default
 			
