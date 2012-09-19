@@ -154,7 +154,32 @@ name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_del
 					skill_score: 0
 				  serving_agent: 1000
 				 serving_system: single_box
-						  state: Answered		
+						  state: Answered
+
+	5.	xem coi trong queue hien tai co bao nhieu nguoi khong duoc ho tro
+		-	select * from members where state='Abandoned';
+			*	so goi den = cid_number: 1001
+			*	agent dang ho tro = serving_agent: 1000
+		
+					select * from members;
+				*************************** 1. row ***************************
+						  queue: support@default
+						 system: single_box
+						   uuid: f277ef13-f43a-4df4-9449-6be2bf94b3df
+				   session_uuid: c242899c-6ea2-4b3f-bc50-c9b1ef17a292
+					 cid_number: 1001
+					   cid_name: hadn
+				   system_epoch: 1347941597
+				   joined_epoch: 1347941597
+				 rejoined_epoch: 0
+				   bridge_epoch: 1347941604
+				abandoned_epoch: 0
+					 base_score: 0
+					skill_score: 0
+				  serving_agent: 1000
+				 serving_system: single_box
+						  state: Abandoned
+
 
 SQLite example:
 sqlite> .dump
