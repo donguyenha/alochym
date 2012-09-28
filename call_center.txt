@@ -7,7 +7,7 @@ call_center configuration
 
   <queues>
 
-    <queue name="support@default">
+    <queue name="0873002222">
       <param name="strategy" value="round-robin"/>
       <!--<param name="strategy" value="longest-idle-agent"/>-->
       <param name="moh-sound" value="$$\{hold_music\}"/>
@@ -87,25 +87,25 @@ name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_del
 	2.	cac cau lenh dung de list/del/add tier
 		+	add tiers: cau lenh nay co the qua http://ip_Freeswitch:8080/webapi/
 			-	callcenter_config tier add [queque_name] [agent_name] [level] [position]
-				* vi du: callcenter_config tier support@default 12345 1 2
+				* vi du: callcenter_config tier 0873002222 12345 1 2
 		+	del tiers: cau lenh nay dung de xoa agent ra
 			-	callcenter_config tier del [queque_name] [agent_name]
-				* vi du: callcenter_config tier support@default 12345
+				* vi du: callcenter_config tier 0873002222 12345
 		+ list tier: dung de xem co bao nhieu agent trong 1 tier
 			queue|agent|state|level|position 
-			support@default|1000|Ready|1|1 
-			support@default|12345|Ready|1|2 
+			0873002222|1000|Ready|1|1 
+			0873002222|12345|Ready|1|2 
 
 
 
 	+	login sqlite: sqlite /dev/shm/callcenter.db
-		-	insert into tiers(queue, agent, state, level, position) VAALUES('support@default', '1000', 'ready', 1, 1);
+		-	insert into tiers(queue, agent, state, level, position) VAALUES('0873002222', '1000', 'ready', 1, 1);
 		
 		-	cac gia tri khong doi: - ko cho user nhap vao, va khogn cho thay luon
 			+	state = ready
 			+	level = 1
 		-	cac gia tri thay doi
-			+	queue = support@default - chi dc chon tu file callcenter.conf.xml
+			+	queue = 0873002222 - chi dc chon tu file callcenter.conf.xml
 			+	agent = agent_name(1000) - chi duoc chon tu agents tables
 			
 	3.	xem coi trong queue hien tai co bao nhieu nguoi doi de ho tro
@@ -113,7 +113,7 @@ name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_del
 		
 					select * from members;
 				*************************** 1. row ***************************
-						  queue: support@default
+						  queue: 0873002222
 						 system: single_box
 						   uuid: 35211ea9-96ec-47c6-b995-22e41d4fb587
 				   session_uuid: 71ec9022-6672-47e3-920b-47ac7bf95ae9
@@ -139,7 +139,7 @@ name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_del
 		
 					select * from members;
 				*************************** 1. row ***************************
-						  queue: support@default
+						  queue: 0873002222
 						 system: single_box
 						   uuid: f277ef13-f43a-4df4-9449-6be2bf94b3df
 				   session_uuid: c242899c-6ea2-4b3f-bc50-c9b1ef17a292
@@ -163,7 +163,7 @@ name|system|uuid|type|contact|status|state|max_no_answer|wrap_up_time|reject_del
 		
 					select * from members;
 				*************************** 1. row ***************************
-						  queue: support@default
+						  queue: 0873002222
 						 system: single_box
 						   uuid: f277ef13-f43a-4df4-9449-6be2bf94b3df
 				   session_uuid: c242899c-6ea2-4b3f-bc50-c9b1ef17a292
@@ -237,22 +237,22 @@ CREATE TABLE tiers (
 INSERT INTO "agents" VALUES('1000', 'single_box', NULL, 'callback', '[call_timeout=100]user/1000', 'Available', 'Waiting', 3, 10, 10, 60, 0, 0, 0, 0, 1347953793, 0, 0, 0, 0);
 INSERT INTO "agents" VALUES('12345', 'single_box', NULL, 'callback', '[call_timeout=100]user/12345', 'Available', 'Waiting', 3, 10, 10, 60, 0, 0, 0, 0, 1347953793, 0, 0, 0, 0);
 
-INSERT INTO "tiers" VALUES('support@default', '1000', 'Ready', 1, 1);
-INSERT INTO "tiers" VALUES('support@default', '12345', 'Ready', 1, 2);						  
+INSERT INTO "tiers" VALUES('0873002222', '1000', 'Ready', 1, 1);
+INSERT INTO "tiers" VALUES('0873002222', '12345', 'Ready', 1, 2);						  
 		  
 COMMIT;
 
 
 sqlite> select * from tiers;
-support@default|1000|Ready|1|1
-support@default|12345|Ready|1|2
+0873002222|1000|Ready|1|1
+0873002222|12345|Ready|1|2
 sqlite> select * from agents;
 1000|single_box||callback|[call_timeout=100]user/1000|Available|Waiting|3|10|10|60|0|0|0|0|1347953793|0|0|0|0
 12345|single_box||callback|[call_timeout=100]user/12345|Available|Waiting|3|10|10|60|0|0|0|0|1347953793|0|0|0|0
 	
 	
 	5.	add queue:	
-		-	cho user nhap ten queue 
+		-	cho user nhap ten queue - phai la so tong dai, vi du: 0873002222
 		-	cho user chon rule de ringing user
 			strategy : 
 				ring-all						Rings all agents simultaneously.
@@ -272,7 +272,7 @@ sqlite> select * from agents;
 						
 				  <queues>
 
-					<queue name="support@default">      
+					<queue name="0873002222">      
 					  <param name="strategy" value="longest-idle-agent"/>
 					  <param name="moh-sound" value="$$\{hold_music\}"/>      
 					  <param name="time-base-score" value="system"/>
