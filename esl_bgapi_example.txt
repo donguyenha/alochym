@@ -1,0 +1,15 @@
+import ESL
+
+esl = ESL.ESLconnection("127.0.0.1", "8021", "ClueCon")
+esl.events("plain", "all")
+count = 0
+while esl.connected() == 1:
+    if msg.getHeader("Event-Subclass") == "callcenter::info":
+        if msg.getHeader("CC-Hangup-Cause") == "USER_NOT_REGISTERED":
+             command = "callcenter_config agent set status " + msg.getHeader("CC-Agent") + " 'Logged Out'"
+             esl.bgapi(command)
+    if count == 10:
+        break
+    count = count + 1
+
+esl.disconnect()
