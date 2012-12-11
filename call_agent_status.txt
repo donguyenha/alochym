@@ -1,0 +1,111 @@
+import ESL
+
+esl = ESL.ESLconnection("127.0.0.1", "8021", "ClueCon")
+esl.events("plain", "all")
+
+count = 0
+while esl.connected() == 1:
+    msg = esl.recvEvent()
+    if msg.getHeader("Event-Subclass") == "callcenter::info":
+         value = msg.getHeader("CC-Action")
+         if value == "agent-offering":
+             print msg.getHeader("CC-Queue")
+             print msg.getHeader("CC-Action")
+             print msg.getHeader("CC-Agent")
+             print msg.getHeader("CC-Agent-UUID")
+             print msg.getHeader("CC-Member-UUID")
+             print msg.getHeader("CC-Member-Session-UUID")
+             print msg.getHeader("CC-Member-CID-Number")
+             print "#####################################"
+             print
+
+         elif value == "bridge-agent-start":
+             print msg.getHeader("CC-Queue")
+             print msg.getHeader("CC-Action")
+             print msg.getHeader("CC-Agent")
+             print msg.getHeader("CC-Agent-UUID")
+             print msg.getHeader("CC-Agent-Called-Time")
+             print msg.getHeader("CC-Agent-Answered-Time")
+             print msg.getHeader("CC-Member-Joined-Time")
+             print msg.getHeader("CC-Member-UUID")
+             print msg.getHeader("CC-Member-Session-UUID")
+             print msg.getHeader("CC-Member-CID-Number")
+             print "#####################################"
+             print
+
+         elif value == "bridge-agent-end":
+             print msg.getHeader("CC-Queue")
+             print msg.getHeader("CC-Action")
+             print msg.getHeader("CC-Hangup-Cause")
+             print msg.getHeader("CC-Agent")
+             print msg.getHeader("CC-Agent-UUID")
+             print msg.getHeader("CC-Agent-Called-Time")
+             print msg.getHeader("CC-Agent-Answered-Time")
+             print msg.getHeader("CC-Member-Joined-Time")
+             print msg.getHeader("CC-Bridge-Terminated-Time")
+             print msg.getHeader("CC-Member-UUID")
+             print msg.getHeader("CC-Member-Session-UUID")
+             print msg.getHeader("CC-Member-CID-Number")
+             print "#####################################"
+             print
+
+         elif value == "bridge-agent-fail":
+             print msg.getHeader("CC-Queue")
+             print msg.getHeader("CC-Action")
+             print msg.getHeader("CC-Hangup-Cause")
+             print msg.getHeader("CC-Agent")
+             print msg.getHeader("CC-Member-UUID")
+             print msg.getHeader("CC-Member-Session-UUID")
+             print msg.getHeader("CC-Member-CID-Number")
+             print "#####################################"
+             print
+
+         elif value == "agent-state-change":
+             print msg.getHeader("CC-Action")
+             print msg.getHeader("CC-Agent")
+             print msg.getHeader("CC-Agent-State")
+             print "#####################################"
+             print
+
+         elif value == "member-queue-end":
+             print msg.getHeader("CC-Queue")
+             print msg.getHeader("CC-Action")
+             print msg.getHeader("CC-Hangup-Cause")
+             print msg.getHeader("CC-Cause")
+             print msg.getHeader("CC-Agent")
+             print msg.getHeader("CC-Agent-Called-Time")
+             print msg.getHeader("CC-Agent-Answered-Time")
+             print msg.getHeader("CC-Member-Leaving-Time")
+             print msg.getHeader("CC-Member-Joined-Time")
+             print msg.getHeader("CC-Agent-UUID")
+             print msg.getHeader("CC-Member-UUID")
+             print msg.getHeader("CC-Member-Session-UUID")
+             print msg.getHeader("CC-Member-CID-Number")
+             print "#####################################"
+             print
+
+         elif value == "members-count":
+             print msg.getHeader("CC-Action")
+             print msg.getHeader("CC-Queue")
+             print msg.getHeader("CC-Count")
+             print msg.getHeader("CC-Selection")
+             print "#####################################"
+             print
+
+         elif value == "member-queue-start":
+             print msg.getHeader("CC-Queue")
+             print msg.getHeader("CC-Action")
+             print msg.getHeader("CC-Member-UUID")
+             print msg.getHeader("CC-Member-Session-UUID")
+             print msg.getHeader("CC-Member-CID-Number")
+             print "#####################################"
+             print
+
+         else:
+             print "####################"
+             print msg.serialize()
+
+    if count == 100:
+        break
+    count = count + 1
+esl.disconnect()
