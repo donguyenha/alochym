@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<include>
+  <context name="default">
+
+    <X-PRE-PROCESS cmd="include" data="default/*.xml"/>
+
+    <extension name="unloop">
+      <condition field="${unroll_loops}" expression="^true$"/>
+      <condition field="${sip_looped_call}" expression="^true$">
+        <action application="deflect" data="${destination_number}"/>
+      </condition>
+    </extension>
+
+    <extension name="global" continue="true">
+      <condition field="${call_debug}" expression="^true$" break="never">
+        <action application="info"/>
+      </condition>
+      <!--
+          This is an example of how to auto detect if telephone-event is missing and activate inband detection
+      -->
+      <!--
+      <condition field="${switch_r_sdp}" expression="a=rtpmap:(\d+)\stelephone-event/8000" break="never">
+        <action application="set" data="rtp_payload_number=$1"/>
+        <anti-action application="start_dtmf"/>
+      </condition>
+      -->
+      <condition field="${sip_has_crypto}" expression="^(AES_CM_128_HMAC_SHA1_32|AES_CM_128_HMAC_SHA1_80)$" break="never">
+        <action application="set" data="sip_secure_media=true"/>
+        <!-- Offer SRTP on outbound legs if we have it on inbound. -->
+        <!-- <action application="export" data="sip_secure_media=true"/> -->
+      </condition>
+
+      <condition>
+        <action application="hash" data="insert/${domain_name}-spymap/${caller_id_number}/${uuid}"/>
+        <action application="hash" data="insert/${domain_name}-last_dial/${caller_id_number}/${destination_number}"/>
+        <action application="hash" data="insert/${domain_name}-last_dial/global/${uuid}"/>
+        <action application="export" data="RFC2822_DATE=${strftime(%a, %d %b %Y %T %z)}"/>
+      </condition>
+    </extension>
+
+    <extension name="agent_login">
+        <condition field="destination_number" expression="^300$">
+                <action application="set" data="res=${callcenter_config(agent set status ${caller_id_number} 'Available')}" />
+                <action application="answer" data=""/>
+                <action application="sleep" data="500"/>
+                <action application="playback" data="ivr/ivr-you_are_now_logged_in.wav"/>
+                <action application="hangup" data="NORMAL_CLEARING"/>
+        </condition>
+    </extension>
+
+<!-- Log Into the Call Queues -->
+    <extension name="agent_logoff">
+        <condition field="destination_number" expression="^301$">
+                <action application="set" data="res=${callcenter_config(agent set status ${caller_id_number} 'Logged Out')}" />
+                <action application="answer" data=""/>
+                <action application="sleep" data="500"/>
+                <action application="playback" data="ivr/ivr-you_are_now_logged_out.wav"/>
+                <action application="hangup" data=""/>
+        </condition>
+    </extension>
+
+    <!-- a sample IVR  -->
+    <extension name="ivr_demo">
+      <condition field="destination_number" expression="^5000$">
+        <action application="set" data="RECORD_TITLE=Recording ${destination_number} ${caller_id_number} ${strftime(%Y-%m-%d %H:%M)}"/>
+        <action application="set" data="RECORD_DATE=${strftime(%Y-%m-%d %H:%M)}"/>
+        <action application="set" data="RECORD_STEREO=true"/>
+        <action application="set" data="continue_on_fail=true"/>
+        <action application="answer"/>
+        <action application="record_session" data="$${base_dir}/recordings/archive/${strftime(%Y-%m-%d-%H-%M-%S)}_${destination_number}_${caller_id_number}.wav"/>
+
+        <action application="sleep" data="2000"/>
+        <action application="ivr" data="demo_ivr"/>
+      </condition>
+    </extension>
+
+    <extension name="call_forwarding_number" continue="true">
+      <condition>
+        <action application="set" data="call_forwarding_number=${db(select/${domain_name}-call_forward/${destination_number})}"/>
+      </condition>
+    </extension>
+
+    <extension name="Local_Extension">
+      <condition field="destination_number" expression="^[1-8](\d+)$">
+        <action application="export" data="dialed_extension=$0"/>
+        <action application="set" data="call_timeout=10"/>
+        <action application="set" data="proxy_media=false"/>
+        <action application="set" data="bypass_media=false"/>
+        <action application="set" data="hangup_after_bridge=true"/>
+        <action application="set" data="RECORD_STEREO=true"/>
+<!--        <action application="record_session" data="$${base_dir}/recordings/archive/${strftime(%Y-%m-%d-%H-%M-%S)}_${caller_id_number}_${destination_number}.wav"/>-->
+        <action application="set" data="continue_on_fail=NO_USER_RESPONSE,USER_BUSY,NO_ANSWER,TIMEOUT,NO_ROUTE_DESTINATION"/>
+        <action application="set" data="continue_on_fail=true"/>
+        <action application="bridge" data="{codec_string='PCMA,PCMU'}user/${dialed_extension}@${domain_name}"/>
+        <action application="execute_extension" data="is_forward XML features"/>
+
+      </condition>
+    </extension>
+
+    <extension name="call_forwarding_activativation">
+      <condition field="destination_number" expression="^\*12$">
+        <action application="play_and_get_digits" data="3 12 1 14000 # tone_stream://%(10000,0,350,440) silence_stream://250 cfwd_num \d+"/>
+        <action application="db" data="insert/${domain_name}-call_forward/${caller_id_number}/${cfwd_num}"/>
+        <action application="playback" data="tone_stream://${bong-ring}"/>
+        <action application="hangup"/>
+      </condition>
+    </extension>
+
+    <extension name="call_forwarding_deactivation">
+      <condition field="destination_number" expression="^\*13$">
+        <action application="db" data="delete/${domain_name}-call_forward/${caller_id_number}"/>
+        <action application="playback" data="tone_stream://${bong-ring}"/>
+        <action application="hangup"/>
+      </condition>
+    </extension>
+<!--
+    <extension name="call_forwarding_number" continue="true">
+      <condition>
+        <action application="set" data="call_forwarding_number=${db(select/${domain_name}-call_forward/${destination_number})}"/>
+      </condition>
+    </extension>
+-->
+    <extension name="callcenter">
+      <condition field="destination_number" expression="^9873051036$">
+        <action application="callcenter" data="0873007300"/>
+      </condition>
+    </extension>
+
+    <extension name="callcenter">
+      <condition field="destination_number" expression="^0873051037$">
+        <action application="callcenter" data="0873007300"/>
+      </condition>
+    </extension>
+
+    <!-- Send a 180 and let the far end generate ringback. -->
+    <extension name="ringback_180">
+      <condition field="destination_number" expression="^9180$">
+        <action application="ring_ready"/>
+        <action application="sleep" data="20000"/>
+        <action application="answer"/>
+        <action application="sleep" data="1000"/>
+        <action application="playback" data="voicemail/vm-goodbye.wav"/>
+        <action application="hangup"/>
+      </condition>
+    </extension>
+
+    <!-- Send a 183 and send uk-ring as the ringtone. (early media) -->
+    <extension name="ringback_183_uk_ring">
+      <condition field="destination_number" expression="^9181$">
+        <action application="set" data="ringback=$${uk-ring}"/>
+        <action application="bridge" data="{ignore_early_media=true}loopback/wait"/>
+      </condition>
+    </extension>
+
+    <!-- Send a 183 and use music as the ringtone. (early media) -->
+    <extension name="ringback_183_music_ring">
+      <condition field="destination_number" expression="^9182$">
+        <action application="set" data="ringback=$${hold_music}"/>
+        <action application="bridge" data="{ignore_early_media=true}loopback/wait"/>
+      </condition>
+    </extension>
+
+    <!--PRE-PROCESS cmd="include" data="default/*.xml"/>-->
+
+  </context>
+</include>
