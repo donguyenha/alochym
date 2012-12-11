@@ -1,0 +1,49 @@
+
+
+
+
+
+
+
+
+
+Event-Subclass: callcenter%3A%3Ainfo
+Event-Name: CUSTOM
+Core-UUID: 8b14e564-348f-11e2-938b-89ad2273634c
+FreeSWITCH-Hostname: xmpp.rad.fpt.net
+FreeSWITCH-Switchname: xmpp.rad.fpt.net
+FreeSWITCH-IPv4: 118.69.190.4
+FreeSWITCH-IPv6: %3A%3A1
+Event-Date-Local: 2012-12-11%2015%3A24%3A00
+Event-Date-GMT: Tue,%2011%20Dec%202012%2008%3A24%3A00%20GMT
+Event-Date-Timestamp: 1355214240444792
+Event-Calling-File: mod_callcenter.c
+Event-Calling-Function: cc_agent_update
+Event-Calling-Line-Number: 944
+Event-Sequence: 250358
+CC-Agent: 1000
+CC-Action: agent-status-change
+CC-Agent-Status: Available
+
+
+
+Event-Subclass: callcenter%3A%3Ainfo
+Event-Name: CUSTOM
+Core-UUID: 8b14e564-348f-11e2-938b-89ad2273634c
+FreeSWITCH-Hostname: xmpp.rad.fpt.net
+FreeSWITCH-Switchname: xmpp.rad.fpt.net
+FreeSWITCH-IPv4: 118.69.190.4
+FreeSWITCH-IPv6: %3A%3A1
+Event-Date-Local: 2012-12-11%2015%3A25%3A27
+Event-Date-GMT: Tue,%2011%20Dec%202012%2008%3A25%3A27%20GMT
+Event-Date-Timestamp: 1355214327244740
+Event-Calling-File: mod_callcenter.c
+Event-Calling-Function: cc_agent_update
+Event-Calling-Line-Number: 944
+Event-Sequence: 250418
+CC-Agent: 1000
+CC-Action: agent-status-change
+CC-Agent-Status: Logged%20Out
+
+
+When an agent's Status changes, this event is generated with the agent's new Status
