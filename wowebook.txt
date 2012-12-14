@@ -1,0 +1,20 @@
+scrapy : wowebook.be
+
+1.	cho tung trang ebook:
+a.	title = hxs.select('//title/text()').extract()
+[u'SciPy and NumPy | Wow! eBook - Blog']
+b.	img =  hxs.select('//div[@class="entry clearfix"]/p/img').extract()
+[u'<img class="alignleft" src="http://img.wowebook.com/images/1054679449.jpg" alt="SciPy and NumPy" width="220" height="220" title="SciPy and NumPy">']
+c.	desc = hxs.select('//div[@class="entry clearfix"]/h3/text()').extract()
+[u'Book Description', u'Book Details', u'Download E-Book', u'Purchase at Amazon']
+d.	desc_details = hxs.select('//div[@class="entry clearfix"]/p/text()').extract()
+[u'Want to learn ', u' and NymPy quickly? Cut through the complexity of online documentation with this concise and illustrated book, and discover how easily you can get up to speed with these ', u' libraries. You\u2019ll understand why they\u2019re powerful enough for many of today\u2019s leading scientists and engineers.', u'Learn ', u' use ', u' for numerical processing, including array indexing, math operations, and loading and saving data. With ', u', you\u2019ll work with advanced mathematical functions such as ', u', interpolation, integration, clustering, ', u', and other tools that take scientific ', u' to a whole new level. This book also introduces add-on SciKits packages that focus on advanced imaging algorithms and ', u'.', u'\nChapter 1. Introduction', u'\nChapter 2. NumPy', u'\nChapter 3. SciPy', u'\nChapter 4. SciKit: Taking SciPy One Step Further', u'\nChapter 5. Conclusion']
+e.	desc_details_ul_li = hxs.select('//div[@class="entry clearfix"]/ul/li/text()').extract()
+[u'<li>Learn the capabilities of <a href="http://www.wowebook.be/tag/numpy/" class="st_tag internal_tag" rel="tag" title="Posts tagged with NumPy">NumPy</a> arrays, element-by-element operations, and core mathematical operations</li>', u'<li>Solve minimization problems quickly with SciPy\u2019s <a href="http://www.wowebook.be/tag/optimization/" class="st_tag internal_tag" rel="tag" title="Posts tagged with Optimization">optimization</a> package</li>', u'<li>Use SciPy functions for interpolation, from simple univariate to complex multivariate cases</li>', u'<li>Apply a variety of SciPy statistical tools such as distributions and functions</li>', u'<li>Learn SciPy\u2019s spatial and <a href="http://www.wowebook.be/tag/cluster/" class="st_tag internal_tag" rel="tag" title="Posts tagged with Cluster">cluster</a> <a href="http://www.wowebook.be/tag/analysis/" class="st_tag internal_tag" rel="tag" title="Posts tagged with Analysis">analysis</a> classes</li>', u'<li>Save operation time and memory usage with sparse matrices</li>', u'<li>Delve into scikits-image for advanced imaging capabilities, and scikits-learn for <a href="http://www.wowebook.be/tag/machine-learning/" class="st_tag internal_tag" rel="tag" title="Posts tagged with Machine Learning">machine learning</a> and <a href="http://www.wowebook.be/tag/data-mining/" class="st_tag internal_tag" rel="tag" title="Posts tagged with Data Mining">data mining</a></li>', u'<li><strong>Paperback:</strong> 68 pages</li>', u'<li><strong>Publisher:</strong> O\u2019Reilly Media (November 2012)</li>', u'<li><strong>Language:</strong> English</li>', u'<li><strong>ISBN-10:</strong> 1449305466</li>', u'<li><strong>ISBN-13:</strong> 978-1449305468</li>']
+f.	Book_details = hxs.select('//div[@class="entry clearfix"]/h3/text()').extract()
+[u'Book Description', u'Book Details', u'Download E-Book', u'Purchase at Amazon']
+g.	Book_download = hxs.select('//div[@class="entry clearfix"]/h3/text()').extract()
+[u'Book Description', u'Book Details', u'Download E-Book', u'Purchase at Amazon']
+h.	Link_download =  hxs.select('//div[@class="entry clearfix"]/pre/strong/a/@href').extract()
+[u'http://adf.ly/1409722/http://prefiles.com/g8mzrj66vp9d/Oreilly.SciPy.and.NumPy.Nov.2012.rar', u'http://www.wowebook.com/amazon?keywords=SciPy+and+NumPy']
+i.	end
