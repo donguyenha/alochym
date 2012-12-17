@@ -2,8 +2,8 @@ from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector
 from scrapy.http import Request
 
-class DmozSpider(BaseSpider):
-    name = "wowebook_all_book"
+class wowebook(BaseSpider):
+    name = "book"
     allowed_domains = ["wowebook.be"]
     #can use www.wowebook.be/sitemap.xml
     start_urls = [
@@ -11,7 +11,7 @@ class DmozSpider(BaseSpider):
     ]
 
     def print_value(self,list):
-        myfile = open("wowebook_all_book.txt", 'a')
+        myfile = open("book.txt", 'a')
         for val in list:
             if val.find('#more') != -1:
                 myfile.write(val + "\n")
