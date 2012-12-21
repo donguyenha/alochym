@@ -9,13 +9,14 @@ import book_structure as book
 class WowEbook(BaseSpider):
     name = "wow"
     allowed_domains = ["wowebook.be"]
-
+    #start_urls = ["http://www.wowebook.be/book/iterating-infusion/"]
     def parse(self, response):
         file_name = response.url.split('/')[-2] + ".xml"
         hxs = HtmlXPathSelector(response)
         try:
             book.dl_urlE.text = "http://" + hxs.select('//div[@class="entry clearfix"]/pre/strong/a/@href').extract()[0].split('http://')[-1] + ".html"
             book.text2E.text = hxs.select('//div[@class="entry clearfix"]/pre/strong/a/@title').extract()[0]
+
             lst = hxs.select('//em/a/text()').extract()
             book.categoriesE.clear()
             for val in lst:
@@ -37,6 +38,11 @@ class WowEbook(BaseSpider):
             real_content = content[:index-4]
             book.contentE.text = re.sub(r'\n|\t','',re.sub(r'\t|\n|<a .*?>|</a>|<div .*?>|<img .*?>',"",real_content))
             isbn_count = 0
+            isbn10 = 0
+            isbn13 = 0
+            language = 0
+            release_date = 0
+            page = 0
             isbn_list = hxs.select('//div[@class="entry clearfix"]/ul/li').extract()
             for val in isbn_list:
                 if val.find("ISBN-10") != -1:
@@ -47,15 +53,20 @@ class WowEbook(BaseSpider):
                     language = isbn_count
                 if val.find("Publisher") != -1:
                     release_date = isbn_count
-                if val.find("Paperback") != -1:
+                if val.find("Paperback") != -1 or val.find("Hardcover") != -1:
                     page = isbn_count
                 isbn_count = isbn_count + 1
-            book.releaseE.text = isbn_list[release_date].split('(')[1].split(')')[0]
-            book.languageE.text = isbn_list[language].split()[-1].split('<')[0]
-            book.pagesE.text = isbn_list[page].split()[1]
-            book.idE.set('value', isbn_list[isbn10].split()[-1].split('<')[0])
-            book.isbn_itemE.set('value', isbn_list[isbn10].split()[-1].split('<')[0])
-            book.isbn_item1E.set('value',  isbn_list[isbn13].split()[-1].split('<')[0])
+            if release_date != 0:
+                book.releaseE.text = isbn_list[release_date].split('(')[1].split(')')[0]
+            if language != 0:
+                book.languageE.text = isbn_list[language].split()[-1].split('<')[0]
+            if page == 0:
+                book.pagesE.text = isbn_list[page].split()[1]
+            if isbn10 != 0:
+                book.idE.set('value', isbn_list[isbn10].split()[-1].split('<')[0])
+                book.isbn_itemE.set('value', isbn_list[isbn10].split()[-1].split('<')[0])
+            if isbn13 != 0:
+                book.isbn_item1E.set('value',  isbn_list[isbn13].split()[-1].split('<')[0])
             book.textE.text = hxs.select('//div[@class="entry clearfix"]/pre/strong/text()').extract()[1]
             file = open(file_name, 'w')
             book.doc.write(file)
@@ -72,7 +83,6 @@ class WowEbook(BaseSpider):
             file_error.write(msg)
             file_error.close()
         except UnboundLocalError:
-            book.textE.text = "www.wowebookpro.com"
             msg = response.url + ' UnboundLocalError' + '\n'
             file = open(file_name, 'w')
             book.doc.write(file)
