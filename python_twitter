@@ -1,0 +1,6 @@
+yum install -y python-pip
+install twitter module
+pip-python install python-twitter
+twitter with python
+cp twitter.py scrapy:
+cp /usr/lib/python2.6/site-packages/twitter.py /usr/lib/python2.6/site-packages/Scrapy-0.16.3-py2.6.egg/scrapy
