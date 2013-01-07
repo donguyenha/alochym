@@ -6,6 +6,8 @@ doc = etree.ElementTree(page)
 metaE = etree.SubElement(page, 'meta')
 resourceE = etree.SubElement(metaE, 'resource')
 typeE = etree.SubElement(resourceE, 'type')
+typeE.text = 'ebook'
+post-dateE = etree.SubElement(resourceE, 'post-date')
 idE = etree.SubElement(resourceE, 'id')
 idE.set('type', 'isbn-10')
 idE.set('value', '123456789')
