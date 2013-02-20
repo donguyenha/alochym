@@ -1,0 +1,26 @@
+install scrapy on windows
+behind proxy: set http_proxy= IP Proxy Server
+set scrapy use proxy
+1. creat file middlewares.py
+	# Importing base64 library because we'll need it ONLY in case if the proxy we are going to use requires authentication
+	import base64
+ 
+	# Start your middleware class
+	class ProxyMiddleware(object):
+		# overwrite process request
+		def process_request(self, request, spider):
+			# Set the location of the proxy
+			request.meta['proxy'] = "http://YOUR_PROXY_IP:PORT"
+2 – Open your project’s configuration file (./project_name/settings.py) and add the following code
+
+	DOWNLOADER_MIDDLEWARES = {
+		'scrapy.contrib.downloadermiddleware.httpproxy.HttpProxyMiddleware': 110,
+		'project_name.middlewares.ProxyMiddleware': 100,
+	}
+
+download
+	1.	http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe
+	2.	http://pypi.python.org/packages/2.7/l/lxml/lxml-2.2.8.win32-py2.7.exe
+	3.	install setuptools and lxml
+	4.	easy_install.exe pip
+	5.	pip install scrapy

@@ -46,4 +46,4 @@ textE.text = "www.wowebookpro.com"
 dl_urlE = etree.SubElement(linkE, 'url')
 dl_urlE.text = "www.wowebookpro.com"
 text2E = etree.SubElement(linkE, 'text2')
-text2E.text = "www.wowebookpro.com"
+text2E.text = "www.wowebookpro.com"s
